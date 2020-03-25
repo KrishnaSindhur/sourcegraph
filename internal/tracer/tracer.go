@@ -153,31 +153,6 @@ func Init(options ...Option) {
 		trace.SpanURL = jaegerSpanURL
 		return
 	}
-
-	lightstepAccessToken := conf.Get().LightstepAccessToken
-	if lightstepAccessToken != "" {
-		log15.Info("Distributed tracing enabled", "tracer", "Lightstep")
-		opentracing.InitGlobalTracer(lightstep.NewTracer(lightstep.Options{
-			AccessToken: lightstepAccessToken,
-			UseGRPC:     true,
-			Tags: opentracing.Tags{
-				lightstep.ComponentNameKey: opts.serviceName,
-			},
-			DropSpanLogs: !lightstepIncludeSensitive,
-		}))
-		trace.SpanURL = lightStepSpanURL
-
-		// Ignore warnings from the tracer about SetTag calls with unrecognized value types. The
-		// github.com/lightstep/lightstep-tracer-go package calls fmt.Sprintf("%#v", ...) on them, which is fine.
-		defaultHandler := lightstep.NewEventLogOneError()
-		lightstep.SetGlobalEventHandler(func(e lightstep.Event) {
-			if _, ok := e.(lightstep.EventUnsupportedValue); ok {
-				// ignore
-			} else {
-				defaultHandler(e)
-			}
-		})
-	}
 }
 
 func lightStepSpanURL(span opentracing.Span) string {
