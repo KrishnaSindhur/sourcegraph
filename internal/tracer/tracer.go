@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"reflect"
-	"strconv"
 	"sync"
 
 	"github.com/fatih/color"
@@ -24,8 +23,7 @@ import (
 )
 
 var (
-	lightstepIncludeSensitive, _ = strconv.ParseBool(env.Get("LIGHTSTEP_INCLUDE_SENSITIVE", "", "send span logs to LightStep"))
-	logColors                    = map[log15.Lvl]color.Attribute{
+	logColors = map[log15.Lvl]color.Attribute{
 		log15.LvlCrit:  color.FgRed,
 		log15.LvlError: color.FgRed,
 		log15.LvlWarn:  color.FgYellow,

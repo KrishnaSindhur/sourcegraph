@@ -20,8 +20,14 @@ var NoopSpanURL = func(span opentracing.Span) string {
 // SpanURL returns the URL to the tracing UI for the given span. The span must be non-nil.
 var SpanURL = NoopSpanURL
 
+var selectiveSampling = true
+
 // New returns a new Trace with the specified family and title.
 func New(ctx context.Context, family, title string) (*Trace, context.Context) {
+	if selectiveSampling {
+		tr := Tracer{Tracer: opentracing.NoopTracer{}}
+		return tr.New(ctx, family, title)
+	}
 	tr := Tracer{Tracer: opentracing.GlobalTracer()}
 	return tr.New(ctx, family, title)
 }
