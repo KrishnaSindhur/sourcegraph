@@ -983,6 +983,8 @@ type SiteConfiguration struct {
 	SearchIndexSymbolsEnabled *bool `json:"search.index.symbols.enabled,omitempty"`
 	// SearchLargeFiles description: A list of file glob patterns where matching files will be indexed and searched regardless of their size. The glob pattern syntax can be found here: https://golang.org/pkg/path/filepath/#Match.
 	SearchLargeFiles []string `json:"search.largeFiles,omitempty"`
+	// TracingJaeger description: Jaeger configuration. If present, Jaeger sampling is enabled.
+	TracingJaeger *TracingJaeger `json:"tracing.jaeger,omitempty"`
 	// UpdateChannel description: The channel on which to automatically check for Sourcegraph updates.
 	UpdateChannel string `json:"update.channel,omitempty"`
 	// UseJaeger description: DEPRECATED: Use `tracing.jaeger` instead. Enables Jaeger tracing.
@@ -996,6 +998,12 @@ type TlsExternal struct {
 	// InsecureSkipVerify description: insecureSkipVerify controls whether a client verifies the server's certificate chain and host name.
 	// If InsecureSkipVerify is true, TLS accepts any certificate presented by the server and any host name in that certificate. In this mode, TLS is susceptible to man-in-the-middle attacks.
 	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
+}
+
+// TracingJaeger description: Jaeger configuration. If present, Jaeger sampling is enabled.
+type TracingJaeger struct {
+	// Sampling description: The application-level sampling mode. Note that this is distinct from Jaeger's internal sampling setting.
+	Sampling string `json:"sampling,omitempty"`
 }
 type UsernameIdentity struct {
 	Type string `json:"type"`

@@ -589,6 +589,18 @@ const SiteSchemaJSON = `{
       "type": "boolean",
       "group": "Misc."
     },
+    "tracing.jaeger": {
+      "description": "Jaeger configuration. If present, Jaeger sampling is enabled.",
+      "type": "object",
+      "properties": {
+        "sampling": {
+          "description": "The application-level sampling mode. Note that this is distinct from Jaeger's internal sampling setting.",
+          "type": "string",
+          "enum": ["selective", "comprehensive"],
+          "default": "selective"
+        }
+      }
+    },
     "htmlHeadTop": {
       "description": "HTML to inject at the top of the ` + "`" + `<head>` + "`" + ` element on each page, for analytics scripts",
       "type": "string",
