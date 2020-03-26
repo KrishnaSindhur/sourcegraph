@@ -13,10 +13,12 @@ import (
 	nettrace "golang.org/x/net/trace"
 )
 
-// SpanURL returns the URL to the tracing UI for the given span. The span must be non-nil.
-var SpanURL = func(span opentracing.Span) string {
+var NoopSpanURL = func(span opentracing.Span) string {
 	return "#tracer-not-enabled"
 }
+
+// SpanURL returns the URL to the tracing UI for the given span. The span must be non-nil.
+var SpanURL = NoopSpanURL
 
 // New returns a new Trace with the specified family and title.
 func New(ctx context.Context, family, title string) (*Trace, context.Context) {
