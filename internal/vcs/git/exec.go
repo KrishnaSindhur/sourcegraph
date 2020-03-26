@@ -9,9 +9,9 @@ import (
 	"net/url"
 	"strings"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/vcs"
 )
 

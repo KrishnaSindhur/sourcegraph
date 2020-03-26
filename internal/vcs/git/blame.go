@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 // BlameOptions configures a blame.

@@ -7,11 +7,11 @@ import (
 	"io"
 	"path"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 type parseRequest struct {

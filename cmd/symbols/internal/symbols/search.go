@@ -19,9 +19,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/keegancsmith/sqlf"
 	sqlite3 "github.com/mattn/go-sqlite3"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	otlog "github.com/opentracing/opentracing-go/log"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/symbols/protocol"
 	"golang.org/x/net/trace"
 )

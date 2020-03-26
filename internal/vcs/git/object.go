@@ -6,9 +6,9 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 // OID is a Git OID (40-char hex-encoded).

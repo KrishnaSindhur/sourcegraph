@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/avelino/slugify"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/rainycape/unidecode"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"

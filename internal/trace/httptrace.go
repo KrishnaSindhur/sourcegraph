@@ -20,6 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/conf"
+	selectivetracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/repotrackutil"
 	"github.com/sourcegraph/sourcegraph/internal/version"
 )
@@ -130,7 +131,9 @@ func Middleware(next http.Handler) http.Handler {
 	return raven.Recoverer(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		wireContext, err := opentracing.GlobalTracer().Extract(
+		// TODO: set context item here
+
+		wireContext, err := selectivetracing.GlobalTracer(ctx).Extract(
 			opentracing.HTTPHeaders,
 			opentracing.HTTPHeadersCarrier(r.Header))
 		if err != nil && err != opentracing.ErrSpanContextNotFound {
@@ -138,13 +141,12 @@ func Middleware(next http.Handler) http.Handler {
 		}
 
 		// start new span
-		span := opentracing.StartSpan("", ext.RPCServerOption(wireContext))
+		span, ctx := selectivetracing.StartSpanFromContext(ctx, "", ext.RPCServerOption(wireContext))
 		ext.HTTPUrl.Set(span, r.URL.String())
 		ext.HTTPMethod.Set(span, r.Method)
 		span.SetTag("http.referer", r.Header.Get("referer"))
 		defer span.Finish()
 		rw.Header().Set("X-Trace", SpanURL(span))
-		ctx = opentracing.ContextWithSpan(ctx, span)
 
 		routeName := "unknown"
 		ctx = context.WithValue(ctx, routeNameKey, &routeName)

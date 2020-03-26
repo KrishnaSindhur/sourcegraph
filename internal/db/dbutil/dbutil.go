@@ -19,9 +19,9 @@ import (
 	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/inconshreveable/log15"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/pkg/errors"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/migrations"
 )
 

@@ -15,10 +15,10 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/format/config"
 
 	"github.com/golang/groupcache/lru"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/vcs/util"
 )
 

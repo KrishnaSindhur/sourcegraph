@@ -18,9 +18,9 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/pathmatch"
 	"github.com/sourcegraph/sourcegraph/internal/store"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	otlog "github.com/opentracing/opentracing-go/log"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 // readerGrep is responsible for finding LineMatches. It is not concurrency

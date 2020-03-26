@@ -10,6 +10,7 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
+	selectivetracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	nettrace "golang.org/x/net/trace"
 )
 
@@ -20,15 +21,9 @@ var NoopSpanURL = func(span opentracing.Span) string {
 // SpanURL returns the URL to the tracing UI for the given span. The span must be non-nil.
 var SpanURL = NoopSpanURL
 
-// var selectiveSampling = true
-
 // New returns a new Trace with the specified family and title.
 func New(ctx context.Context, family, title string) (*Trace, context.Context) {
-	// if selectiveSampling {
-	// 	tr := Tracer{Tracer: opentracing.NoopTracer{}}
-	// 	return tr.New(ctx, family, title)
-	// }
-	tr := Tracer{Tracer: opentracing.GlobalTracer()}
+	tr := Tracer{Tracer: selectivetracing.GlobalTracer(ctx)}
 	return tr.New(ctx, family, title)
 }
 

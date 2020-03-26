@@ -3,7 +3,7 @@ package backend
 import (
 	"context"
 
-	opentracing "github.com/opentracing/opentracing-go"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 
 	"github.com/sourcegraph/sourcegraph/cmd/frontend/db"
 	"github.com/sourcegraph/sourcegraph/internal/actor"

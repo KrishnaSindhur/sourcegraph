@@ -6,13 +6,13 @@ import (
 	"github.com/inconshreveable/log15"
 
 	"github.com/gorilla/mux"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sourcegraph/sourcegraph/cmd/frontend/internal/pkg/handlerutil"
 	"github.com/sourcegraph/sourcegraph/internal/errcode"
 	"github.com/sourcegraph/sourcegraph/internal/lazyregexp"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 var goSymbolReg = lazyregexp.New("/info/GoPackage/(.+)$")

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/inconshreveable/log15"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 
 	"github.com/sourcegraph/sourcegraph/internal/actor"
 	tracepkg "github.com/sourcegraph/sourcegraph/internal/trace"

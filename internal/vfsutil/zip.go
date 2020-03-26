@@ -9,8 +9,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
+	"github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 // NewZipVFS downloads a zip archive from a URL (or fetches from the local cache

@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 // ShortLogOptions contains options for (Repository).ShortLog.

@@ -5,8 +5,8 @@ import (
 	"net/http/httputil"
 
 	"github.com/neelance/parallel"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/sourcegraph/sourcegraph/internal/api"
+	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 // DefaultReverseProxy is the default ReverseProxy. It uses the same transport and HTTP
