@@ -12,7 +12,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/cmd/frontend/internal/pkg/handlerutil"
 	"github.com/sourcegraph/sourcegraph/internal/errcode"
 	"github.com/sourcegraph/sourcegraph/internal/lazyregexp"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 var goSymbolReg = lazyregexp.New("/info/GoPackage/(.+)$")
@@ -34,7 +34,7 @@ func serveRepoLanding(w http.ResponseWriter, r *http.Request) error {
 }
 
 func serveDefLanding(w http.ResponseWriter, r *http.Request) (err error) {
-	span, ctx := opentracing.StartSpanFromContext(r.Context(), "serveDefLanding")
+	span, ctx := trace.StartSpanFromContext(r.Context(), "serveDefLanding")
 	r = r.WithContext(ctx)
 	defer func() {
 		if err != nil {

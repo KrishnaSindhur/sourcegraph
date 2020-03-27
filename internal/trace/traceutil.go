@@ -10,7 +10,6 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
-	selectivetracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	nettrace "golang.org/x/net/trace"
 )
 
@@ -23,7 +22,7 @@ var SpanURL = NoopSpanURL
 
 // New returns a new Trace with the specified family and title.
 func New(ctx context.Context, family, title string) (*Trace, context.Context) {
-	tr := Tracer{Tracer: selectivetracing.GlobalTracer(ctx)}
+	tr := Tracer{Tracer: GetTracer(ctx)}
 	return tr.New(ctx, family, title)
 }
 
@@ -36,6 +35,7 @@ type Tracer struct {
 
 // New returns a new Trace with the specified family and title.
 func (t Tracer) New(ctx context.Context, family, title string) (*Trace, context.Context) {
+	// TODO(beyang): update this to key off the context item (or just remove the Tracer field)
 	span, ctx := opentracing.StartSpanFromContextWithTracer(
 		ctx,
 		t.Tracer,
