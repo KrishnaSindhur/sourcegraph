@@ -35,10 +35,9 @@ type Tracer struct {
 
 // New returns a new Trace with the specified family and title.
 func (t Tracer) New(ctx context.Context, family, title string) (*Trace, context.Context) {
-	// TODO(beyang): update this to key off the context item (or just remove the Tracer field)
 	span, ctx := opentracing.StartSpanFromContextWithTracer(
 		ctx,
-		t.Tracer,
+		GetTracerNonGlobal(ctx, t.Tracer),
 		family,
 		opentracing.Tag{Key: "title", Value: title},
 	)

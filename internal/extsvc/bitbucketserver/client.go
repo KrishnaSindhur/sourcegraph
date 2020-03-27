@@ -21,10 +21,10 @@ import (
 	"github.com/gomodule/oauth1/oauth"
 	"github.com/inconshreveable/log15"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/httpcli"
 	"github.com/sourcegraph/sourcegraph/internal/metrics"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 	"github.com/sourcegraph/sourcegraph/schema"
 	"golang.org/x/time/rate"
 )
@@ -773,7 +773,7 @@ func (c *Client) do(ctx context.Context, req *http.Request, result interface{}) 
 	req.URL = c.URL.ResolveReference(req.URL)
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	req, ht := nethttp.TraceRequest(opentracing.GlobalTracer(),
+	req, ht := nethttp.TraceRequest(trace.GetTracer(ctx),
 		req.WithContext(ctx),
 		nethttp.OperationName("Bitbucket Server"),
 		nethttp.ClientTrace(false))

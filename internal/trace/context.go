@@ -2,7 +2,11 @@ package trace
 
 import (
 	"context"
+	"net/http"
+	"strconv"
 
+	"github.com/opentracing-contrib/go-stdlib/nethttp"
+	opentracing "github.com/opentracing/opentracing-go"
 	ot "github.com/opentracing/opentracing-go"
 )
 
@@ -19,11 +23,16 @@ func WithTracing(ctx context.Context, shouldTrace bool) context.Context {
 }
 
 func GetTracer(ctx context.Context) ot.Tracer {
+	return GetTracerNonGlobal(ctx, ot.GlobalTracer())
+}
+
+func GetTracerNonGlobal(ctx context.Context, tracer ot.Tracer) ot.Tracer {
 	// TODO: incorporate config value, via init func and conf.Watch
 	if FromContext(ctx) {
-		return ot.GlobalTracer()
+		return tracer
 	}
 	return ot.NoopTracer{}
+
 }
 
 // StartSpanFromContext conditionally starts a span either with the global tracer or the NoopTracer,
@@ -33,6 +42,20 @@ func StartSpanFromContext(ctx context.Context, operationName string, opts ...ot.
 	return ot.StartSpanFromContextWithTracer(ctx, GetTracer(ctx), operationName, opts...)
 }
 
-// TODO: Middleware
+func Middleware(h http.Handler, opts ...nethttp.MWOption) http.Handler {
+	return MiddlewareWithTracer(ot.GlobalTracer(), h)
+}
 
-// >>>>>>>>> Replace all instances of selectivetracing.StartSpanFromContext with StartSpanFromContext
+func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp.MWOption) http.Handler {
+	// TODO: incorporate config value, via init func and conf.Watch
+	allOpts := append([]nethttp.MWOption{
+		nethttp.MWSpanFilter(func(r *http.Request) bool { return FromContext(r.Context()) }),
+	}, opts...)
+	m := nethttp.Middleware(tr, h, allOpts...)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if shouldTrace, _ := strconv.ParseBool(r.URL.Query().Get("trace")); shouldTrace {
+			m.ServeHTTP(w, r.WithContext(WithTracing(r.Context(), true)))
+		}
+		m.ServeHTTP(w, r)
+	})
+}

@@ -13,7 +13,6 @@ import (
 
 	"github.com/inconshreveable/log15"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
-	"github.com/opentracing/opentracing-go"
 	otlog "github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/go-diff/diff"
@@ -259,7 +258,7 @@ func callCodemodInRepo(ctx context.Context, repoRevs *search.RepositoryRevisions
 	}
 	req = req.WithContext(ctx)
 
-	req, ht := nethttp.TraceRequest(opentracing.GlobalTracer(), req,
+	req, ht := nethttp.TraceRequest(trace.GetTracer(ctx), req,
 		nethttp.OperationName("Codemod client"),
 		nethttp.ClientTrace(false))
 	defer ht.Finish()
