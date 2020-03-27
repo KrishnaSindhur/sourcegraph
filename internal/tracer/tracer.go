@@ -183,10 +183,15 @@ func initTracer(opts *Options) {
 			jaegerEnabled = false
 		}
 	})
-
 }
 
+// TODO: sometimes this gets called when tracer is of type Noop. Should fix. Maybe collapse all of
+// these into 1 function, into separate functions.
 func jaegerSpanURL(span opentracing.Span) string {
-	spanCtx := span.Context().(jaeger.SpanContext)
-	return spanCtx.TraceID().String()
+	return ""
+	// spanCtx, ok := span.Context().(jaeger.SpanContext)
+	// if !ok {
+	// 	return ""
+	// }
+	// return spanCtx.TraceID().String()
 }

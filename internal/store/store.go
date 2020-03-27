@@ -21,11 +21,11 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/diskcache"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
 	"github.com/sourcegraph/sourcegraph/internal/mutablelimiter"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
-	selectivetracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 // maxFileSize is the limit on file size in bytes. Only files smaller
@@ -110,7 +110,7 @@ func (s *Store) Start() {
 // PrepareZip returns the path to a local zip archive of repo at commit.
 // It will first consult the local cache, otherwise will fetch from the network.
 func (s *Store) PrepareZip(ctx context.Context, repo gitserver.Repo, commit api.CommitID) (path string, err error) {
-	span, ctx := selectivetracing.StartSpanFromContext(ctx, "Store.prepareZip")
+	span, ctx := trace.StartSpanFromContext(ctx, "Store.prepareZip")
 	ext.Component.Set(span, "store")
 	defer func() {
 		if err != nil {
@@ -188,7 +188,7 @@ func (s *Store) fetch(ctx context.Context, repo gitserver.Repo, commit api.Commi
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
 
 	fetching.Inc()
-	span, ctx := selectivetracing.StartSpanFromContext(ctx, "Store.fetch")
+	span, ctx := trace.StartSpanFromContext(ctx, "Store.fetch")
 	ext.Component.Set(span, "store")
 	span.SetTag("repo", repo.Name)
 	span.SetTag("repoURL", repo.URL)

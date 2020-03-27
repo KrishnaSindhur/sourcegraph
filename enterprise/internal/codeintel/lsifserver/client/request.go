@@ -14,7 +14,7 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/linkheader"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 type lsifRequest struct {
@@ -55,7 +55,7 @@ func (c *Client) do(ctx context.Context, lsifRequest *lsifRequest, payload inter
 		return nil, err
 	}
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "lsifserver.client.do")
+	span, ctx := trace.StartSpanFromContext(ctx, "lsifserver.client.do")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

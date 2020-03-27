@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 	"github.com/sourcegraph/sourcegraph/internal/vcs/util"
 )
 
@@ -22,7 +22,7 @@ func ReadFile(ctx context.Context, repo gitserver.Repo, commit api.CommitID, nam
 		return Mocks.ReadFile(commit, name)
 	}
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: ReadFile")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: ReadFile")
 	span.SetTag("Name", name)
 	defer span.Finish()
 
@@ -45,7 +45,7 @@ func NewFileReader(ctx context.Context, repo gitserver.Repo, commit api.CommitID
 		return Mocks.NewFileReader(commit, name)
 	}
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: GetFileReader")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: GetFileReader")
 	span.SetTag("Name", name)
 	defer span.Finish()
 

@@ -37,7 +37,6 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/honey"
 	"github.com/sourcegraph/sourcegraph/internal/lazyregexp"
 	"github.com/sourcegraph/sourcegraph/internal/mutablelimiter"
-	"github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/repotrackutil"
 	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
@@ -80,7 +79,7 @@ func runCommand(ctx context.Context, cmd *exec.Cmd) (exitCode int, err error) {
 	if runCommandMock != nil {
 		return runCommandMock(ctx, cmd)
 	}
-	span, _ := opentracing.StartSpanFromContext(ctx, "runCommand")
+	span, _ := trace.StartSpanFromContext(ctx, "runCommand")
 	span.SetTag("path", cmd.Path)
 	span.SetTag("args", cmd.Args)
 	span.SetTag("dir", cmd.Dir)
@@ -1048,7 +1047,7 @@ func init() {
 var headBranchPattern = lazyregexp.New(`HEAD branch: (.+?)\n`)
 
 func (s *Server) doRepoUpdate(ctx context.Context, repo api.RepoName, url string) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Server.doRepoUpdate")
+	span, ctx := trace.StartSpanFromContext(ctx, "Server.doRepoUpdate")
 	span.SetTag("repo", repo)
 	span.SetTag("url", url)
 	defer span.Finish()

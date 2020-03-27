@@ -8,16 +8,16 @@ import (
 	"golang.org/x/net/context/ctxhttp"
 
 	"github.com/pkg/errors"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 
 	"github.com/opentracing/opentracing-go/ext"
-	"github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 )
 
 // NewZipVFS downloads a zip archive from a URL (or fetches from the local cache
 // on disk) and returns a new VFS backed by that zip archive.
 func NewZipVFS(url string, onFetchStart, onFetchFailed func(), evictOnClose bool) (*ArchiveFS, error) {
 	fetch := func(ctx context.Context) (ar *archiveReader, err error) {
-		span, ctx := opentracing.StartSpanFromContext(ctx, "zip Fetch")
+		span, ctx := trace.StartSpanFromContext(ctx, "zip Fetch")
 		ext.Component.Set(span, "zipvfs")
 		span.SetTag("url", url)
 		defer func() {

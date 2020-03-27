@@ -21,9 +21,9 @@ import (
 	sqlite3 "github.com/mattn/go-sqlite3"
 	"github.com/opentracing/opentracing-go/ext"
 	otlog "github.com/opentracing/opentracing-go/log"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/symbols/protocol"
-	"golang.org/x/net/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
+	nettrace "golang.org/x/net/trace"
 )
 
 // maxFileSize is the limit on file size in bytes. Only files smaller than this are processed.
@@ -70,7 +70,7 @@ func (s *Service) search(ctx context.Context, args protocol.SearchArgs) (result 
 
 	log15.Debug("Symbol search", "repo", args.Repo, "query", args.Query)
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "search")
+	span, ctx := trace.StartSpanFromContext(ctx, "search")
 	span.SetTag("repo", args.Repo)
 	span.SetTag("commitID", args.CommitID)
 	span.SetTag("query", args.Query)
@@ -83,7 +83,7 @@ func (s *Service) search(ctx context.Context, args protocol.SearchArgs) (result 
 		span.Finish()
 	}()
 
-	tr := trace.New("symbols.search", fmt.Sprintf("args:%+v", args))
+	tr := nettrace.New("symbols.search", fmt.Sprintf("args:%+v", args))
 	defer func() {
 		if err != nil {
 			tr.LazyPrintf("error: %v", err)
@@ -152,7 +152,7 @@ func isLiteralEquality(expr string) (ok bool, lit string, err error) {
 }
 
 func filterSymbols(ctx context.Context, db *sqlx.DB, args protocol.SearchArgs) (res []protocol.Symbol, err error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "filterSymbols")
+	span, _ := trace.StartSpanFromContext(ctx, "filterSymbols")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

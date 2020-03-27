@@ -18,9 +18,9 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/endpoint"
 	"github.com/sourcegraph/sourcegraph/internal/env"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/search"
 	"github.com/sourcegraph/sourcegraph/internal/symbols/protocol"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 	"golang.org/x/net/context/ctxhttp"
 )
 
@@ -75,7 +75,7 @@ func (c *Client) url(key key) (string, error) {
 
 // Search performs a symbol search on the symbols service.
 func (c *Client) Search(ctx context.Context, args search.SymbolsParameters) (result *protocol.SearchResult, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "symbols.Client.Search")
+	span, ctx := trace.StartSpanFromContext(ctx, "symbols.Client.Search")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)
@@ -103,7 +103,7 @@ func (c *Client) Search(ctx context.Context, args search.SymbolsParameters) (res
 }
 
 func (c *Client) httpPost(ctx context.Context, method string, key key, payload interface{}) (resp *http.Response, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "symbols.Client.httpPost")
+	span, ctx := trace.StartSpanFromContext(ctx, "symbols.Client.httpPost")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

@@ -27,7 +27,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	selectivetracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 
 	"github.com/inconshreveable/log15"
 
@@ -361,7 +360,7 @@ func (sf *searchFilterResolver) Kind() string {
 // blameFileMatch blames the specified file match to produce the time at which
 // the first line match inside of it was authored.
 func (sr *SearchResultsResolver) blameFileMatch(ctx context.Context, fm *FileMatchResolver) (t time.Time, err error) {
-	span, ctx := selectivetracing.StartSpanFromContext(ctx, "blameFileMatch")
+	span, ctx := trace.StartSpanFromContext(ctx, "blameFileMatch")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

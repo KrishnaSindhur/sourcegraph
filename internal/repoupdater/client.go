@@ -17,8 +17,8 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/env"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
 	"github.com/sourcegraph/sourcegraph/internal/metrics"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/repoupdater/protocol"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 var repoupdaterURL = env.Get("REPO_UPDATER_URL", "http://repo-updater:3182", "repo-updater server URL")
@@ -89,7 +89,7 @@ func (c *Client) RepoLookup(ctx context.Context, args protocol.RepoLookupArgs) (
 		return MockRepoLookup(args)
 	}
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Client.RepoLookup")
+	span, ctx := trace.StartSpanFromContext(ctx, "Client.RepoLookup")
 	defer func() {
 		if result != nil {
 			span.SetTag("found", result.Repo != nil)
@@ -350,7 +350,7 @@ func (c *Client) httpGet(ctx context.Context, method string) (*http.Response, er
 }
 
 func (c *Client) do(ctx context.Context, req *http.Request) (_ *http.Response, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Client.do")
+	span, ctx := trace.StartSpanFromContext(ctx, "Client.do")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

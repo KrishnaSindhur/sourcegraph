@@ -20,7 +20,6 @@ import (
 
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	otlog "github.com/opentracing/opentracing-go/log"
-	"github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 
 	"github.com/inconshreveable/log15"
 	"github.com/sourcegraph/sourcegraph/cmd/frontend/types"
@@ -302,7 +301,7 @@ func textSearchURL(ctx context.Context, url string) ([]*FileMatchResolver, bool,
 	}
 	req = req.WithContext(ctx)
 
-	req, ht := nethttp.TraceRequest(opentracing.GlobalTracer(ctx), req,
+	req, ht := nethttp.TraceRequest(trace.GetTracer(ctx), req,
 		nethttp.OperationName("Searcher Client"),
 		nethttp.ClientTrace(false))
 	defer ht.Finish()

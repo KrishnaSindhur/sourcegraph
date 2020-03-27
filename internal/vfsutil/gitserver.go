@@ -12,7 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 // NewGitServer returns a VFS to repo at commit. It is backed by an archive
@@ -76,7 +76,7 @@ func (opts *ArchiveOpts) cacheKey() string {
 
 // GitServerFetchArchive fetches an archive of a repositories contents from gitserver.
 func GitServerFetchArchive(ctx context.Context, opts ArchiveOpts) (archive *os.File, cacheEvicter Evicter, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Archive Fetch")
+	span, ctx := trace.StartSpanFromContext(ctx, "Archive Fetch")
 	ext.Component.Set(span, "gitserver")
 	span.SetTag("repo", opts.Repo)
 	span.SetTag("commit", opts.Commit)

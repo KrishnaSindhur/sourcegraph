@@ -32,7 +32,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/gitserver/protocol"
 	"github.com/sourcegraph/sourcegraph/internal/httpcli"
 	"github.com/sourcegraph/sourcegraph/internal/metrics"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 	"github.com/sourcegraph/sourcegraph/internal/vcs"
 )
 
@@ -164,7 +164,7 @@ func (c *Client) ArchiveURL(ctx context.Context, repo Repo, opt ArchiveOptions) 
 
 // Archive produces an archive from a Git repository.
 func (c *Client) Archive(ctx context.Context, repo Repo, opt ArchiveOptions) (_ io.ReadCloser, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: Archive")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: Archive")
 	span.SetTag("Repo", repo.Name)
 	span.SetTag("Treeish", opt.Treeish)
 	defer func() {
@@ -224,7 +224,7 @@ func (e badRequestError) BadRequest() bool { return true }
 func (c *Cmd) sendExec(ctx context.Context) (_ io.ReadCloser, _ http.Header, errRes error) {
 	repoName := protocol.NormalizeRepo(c.Repo.Name)
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Client.sendExec")
+	span, ctx := trace.StartSpanFromContext(ctx, "Client.sendExec")
 	defer func() {
 		if errRes != nil {
 			ext.Error.Set(span, true)
@@ -761,7 +761,7 @@ func (c *Client) httpPost(ctx context.Context, repo api.RepoName, op string, pay
 // do performs a request to a gitserver, sharding based on the given
 // repo name (the repo name is otherwise not used).
 func (c *Client) do(ctx context.Context, repo api.RepoName, method, op string, payload interface{}) (resp *http.Response, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Client.do")
+	span, ctx := trace.StartSpanFromContext(ctx, "Client.do")
 	defer func() {
 		span.LogKV("repo", string(repo), "method", method, "op", op)
 		if err != nil {

@@ -20,7 +20,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/conf"
-	selectivetracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/repotrackutil"
 	"github.com/sourcegraph/sourcegraph/internal/version"
 )
@@ -33,6 +32,7 @@ const (
 	requestErrorCauseKey
 	graphQLRequestNameKey
 	originKey
+	contextKey
 )
 
 // trackOrigin specifies a URL value. When an incoming request has the request header "Origin" set
@@ -133,7 +133,7 @@ func Middleware(next http.Handler) http.Handler {
 
 		// TODO: set context item here
 
-		wireContext, err := selectivetracing.GlobalTracer(ctx).Extract(
+		wireContext, err := GetTracer(ctx).Extract(
 			opentracing.HTTPHeaders,
 			opentracing.HTTPHeadersCarrier(r.Header))
 		if err != nil && err != opentracing.ErrSpanContextNotFound {
@@ -141,7 +141,7 @@ func Middleware(next http.Handler) http.Handler {
 		}
 
 		// start new span
-		span, ctx := selectivetracing.StartSpanFromContext(ctx, "", ext.RPCServerOption(wireContext))
+		span, ctx := StartSpanFromContext(ctx, "", ext.RPCServerOption(wireContext))
 		ext.HTTPUrl.Set(span, r.URL.String())
 		ext.HTTPMethod.Set(span, r.Method)
 		span.SetTag("http.referer", r.Header.Get("referer"))

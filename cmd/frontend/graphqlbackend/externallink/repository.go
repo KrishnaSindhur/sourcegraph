@@ -15,9 +15,9 @@ import (
 	"github.com/sourcegraph/sourcegraph/cmd/frontend/types"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/errcode"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/repoupdater"
 	"github.com/sourcegraph/sourcegraph/internal/repoupdater/protocol"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 	"github.com/sourcegraph/sourcegraph/internal/vcs/git"
 )
 
@@ -104,7 +104,7 @@ func Commit(ctx context.Context, repo *types.Repo, commitID api.CommitID) (links
 // It logs errors to the trace but does not return errors, because external links are not worth
 // failing any request for.
 func linksForRepository(ctx context.Context, repo *types.Repo) (phabRepo *types.PhabricatorRepo, link *protocol.RepoLinks, serviceType string) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "externallink.linksForRepository")
+	span, ctx := trace.StartSpanFromContext(ctx, "externallink.linksForRepository")
 	defer span.Finish()
 	span.SetTag("Repo", repo.Name)
 	span.SetTag("ExternalRepo", repo.ExternalRepo)

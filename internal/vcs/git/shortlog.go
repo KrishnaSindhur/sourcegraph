@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 // ShortLogOptions contains options for (Repository).ShortLog.
@@ -32,7 +32,7 @@ func (p *PersonCount) String() string {
 
 // ShortLog returns the per-author commit statistics of the repo.
 func ShortLog(ctx context.Context, repo gitserver.Repo, opt ShortLogOptions) ([]*PersonCount, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: ShortLog")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: ShortLog")
 	span.SetTag("Opt", opt)
 	defer span.Finish()
 

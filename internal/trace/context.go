@@ -6,10 +6,6 @@ import (
 	ot "github.com/opentracing/opentracing-go"
 )
 
-type key int
-
-const contextKey key = iota
-
 func FromContext(ctx context.Context) bool {
 	v, ok := ctx.Value(contextKey).(bool)
 	if !ok {
@@ -34,7 +30,7 @@ func GetTracer(ctx context.Context) ot.Tracer {
 // depending on whether the context item is set and if selective tracing is enabled in the site
 // configuration.
 func StartSpanFromContext(ctx context.Context, operationName string, opts ...ot.StartSpanOption) (ot.Span, context.Context) {
-	return ot.StartSpanFromContextWithTracer(ctx, ot.GetTracer(ctx), operationName, opts...)
+	return ot.StartSpanFromContextWithTracer(ctx, GetTracer(ctx), operationName, opts...)
 }
 
 // TODO: Middleware

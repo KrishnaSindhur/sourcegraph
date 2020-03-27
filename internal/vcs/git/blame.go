@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 // BlameOptions configures a blame.
@@ -36,7 +36,7 @@ type Hunk struct {
 
 // BlameFile returns Git blame information about a file.
 func BlameFile(ctx context.Context, repo gitserver.Repo, path string, opt *BlameOptions) ([]*Hunk, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: BlameFile")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: BlameFile")
 	span.SetTag("repo", repo.Name)
 	span.SetTag("path", path)
 	span.SetTag("opt", opt)

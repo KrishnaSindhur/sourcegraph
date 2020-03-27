@@ -23,7 +23,6 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/conf"
 	"github.com/sourcegraph/sourcegraph/internal/errcode"
 	"github.com/sourcegraph/sourcegraph/internal/gituri"
-	"github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/search"
 	"github.com/sourcegraph/sourcegraph/internal/search/query"
 	"github.com/sourcegraph/sourcegraph/internal/symbols/protocol"
@@ -252,7 +251,7 @@ func symbolCount(fmrs []*FileMatchResolver) int {
 }
 
 func searchSymbolsInRepo(ctx context.Context, repoRevs *search.RepositoryRevisions, patternInfo *search.TextPatternInfo, query query.QueryInfo, limit int) (res []*FileMatchResolver, err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Search symbols in repo")
+	span, ctx := trace.StartSpanFromContext(ctx, "Search symbols in repo")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

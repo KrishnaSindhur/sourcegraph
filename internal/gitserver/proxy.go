@@ -6,7 +6,7 @@ import (
 
 	"github.com/neelance/parallel"
 	"github.com/sourcegraph/sourcegraph/internal/api"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 // DefaultReverseProxy is the default ReverseProxy. It uses the same transport and HTTP
@@ -34,7 +34,7 @@ type ReverseProxy struct {
 // to gitserver. The director must rewrite the request to the correct gitserver address, which
 // should be obtained via a gitserver client's AddrForRepo method.
 func (p *ReverseProxy) ServeHTTP(repo api.RepoName, method, op string, director func(req *http.Request), res http.ResponseWriter, req *http.Request) {
-	span, _ := opentracing.StartSpanFromContext(req.Context(), "ReverseProxy.ServeHTTP")
+	span, _ := trace.StartSpanFromContext(req.Context(), "ReverseProxy.ServeHTTP")
 	defer func() {
 		span.LogKV("repo", string(repo), "method", method, "op", op)
 		span.Finish()

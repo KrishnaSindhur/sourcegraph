@@ -18,14 +18,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 	"github.com/sourcegraph/sourcegraph/internal/vcs/util"
 )
 
 // Lstat returns a FileInfo describing the named file at commit. If the file is a symbolic link, the
 // returned FileInfo describes the symbolic link.  Lstat makes no attempt to follow the link.
 func Lstat(ctx context.Context, repo gitserver.Repo, commit api.CommitID, path string) (os.FileInfo, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: Lstat")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: Lstat")
 	span.SetTag("Commit", commit)
 	span.SetTag("Path", path)
 	defer span.Finish()
@@ -62,7 +62,7 @@ func Stat(ctx context.Context, repo gitserver.Repo, commit api.CommitID, path st
 		return Mocks.Stat(commit, path)
 	}
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: Stat")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: Stat")
 	span.SetTag("Commit", commit)
 	span.SetTag("Path", path)
 	defer span.Finish()
@@ -103,7 +103,7 @@ func ReadDir(ctx context.Context, repo gitserver.Repo, commit api.CommitID, path
 		return Mocks.ReadDir(commit, path, recurse)
 	}
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: ReadDir")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: ReadDir")
 	span.SetTag("Commit", commit)
 	span.SetTag("Path", path)
 	span.SetTag("Recurse", recurse)

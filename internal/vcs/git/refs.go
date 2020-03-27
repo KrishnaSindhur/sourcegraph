@@ -12,10 +12,10 @@ import (
 	"github.com/avelino/slugify"
 	"github.com/pkg/errors"
 	"github.com/rainycape/unidecode"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 	"github.com/sourcegraph/sourcegraph/internal/vcs"
 )
 
@@ -145,7 +145,7 @@ func (f branchFilter) add(list []string) {
 
 // ListBranches returns a list of all branches in the repository.
 func ListBranches(ctx context.Context, repo gitserver.Repo, opt BranchesOptions) ([]*Branch, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: Branches")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: Branches")
 	span.SetTag("Opt", opt)
 	defer span.Finish()
 
@@ -216,7 +216,7 @@ func branches(ctx context.Context, repo gitserver.Repo, args ...string) ([]strin
 // GetBehindAhead returns the behind/ahead commit counts information for right vs. left (both Git
 // revspecs).
 func GetBehindAhead(ctx context.Context, repo gitserver.Repo, left, right string) (*BehindAhead, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: BehindAhead")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: BehindAhead")
 	defer span.Finish()
 
 	if err := checkSpecArgSafety(left); err != nil {
@@ -246,7 +246,7 @@ func GetBehindAhead(ctx context.Context, repo gitserver.Repo, left, right string
 
 // ListTags returns a list of all tags in the repository.
 func ListTags(ctx context.Context, repo gitserver.Repo) ([]*Tag, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: Tags")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: Tags")
 	defer span.Finish()
 
 	// Support both lightweight tags and tag objects. For creatordate, use an %(if) to prefer the
@@ -294,7 +294,7 @@ func (p byteSlices) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // ListRefs returns a list of all refs in the repository.
 func ListRefs(ctx context.Context, repo gitserver.Repo) ([]Ref, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Git: ListRefs")
+	span, ctx := trace.StartSpanFromContext(ctx, "Git: ListRefs")
 	defer span.Finish()
 	return showRef(ctx, repo)
 }

@@ -22,9 +22,9 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/env"
 	"github.com/sourcegraph/sourcegraph/internal/httpcli"
 	"github.com/sourcegraph/sourcegraph/internal/metrics"
-	opentracing "github.com/sourcegraph/sourcegraph/internal/opentracing-selective"
 	"github.com/sourcegraph/sourcegraph/internal/ratelimit"
 	"github.com/sourcegraph/sourcegraph/internal/rcache"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 var (
@@ -198,7 +198,7 @@ func (c *Client) do(ctx context.Context, token string, req *http.Request, result
 
 	var resp *http.Response
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "GitHub")
+	span, ctx := trace.StartSpanFromContext(ctx, "GitHub")
 	span.SetTag("URL", req.URL.String())
 	defer func() {
 		if err != nil {
