@@ -2,6 +2,7 @@ package trace
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -29,8 +30,10 @@ func GetTracer(ctx context.Context) ot.Tracer {
 func GetTracerNonGlobal(ctx context.Context, tracer ot.Tracer) ot.Tracer {
 	// TODO: incorporate config value, via init func and conf.Watch
 	if FromContext(ctx) {
+		log.Printf("# Using tracer %T", tracer)
 		return tracer
 	}
+	log.Printf("# Using NoopTracer")
 	return ot.NoopTracer{}
 
 }
@@ -49,7 +52,11 @@ func Middleware(h http.Handler, opts ...nethttp.MWOption) http.Handler {
 func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp.MWOption) http.Handler {
 	// TODO: incorporate config value, via init func and conf.Watch
 	allOpts := append([]nethttp.MWOption{
-		nethttp.MWSpanFilter(func(r *http.Request) bool { return FromContext(r.Context()) }),
+		nethttp.MWSpanFilter(func(r *http.Request) bool {
+			shouldTrace := FromContext(r.Context())
+			log.Printf("# shouldTrace: %v", shouldTrace)
+			return shouldTrace
+		}),
 	}, opts...)
 	m := nethttp.Middleware(tr, h, allOpts...)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
