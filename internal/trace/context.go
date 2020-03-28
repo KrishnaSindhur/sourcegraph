@@ -5,12 +5,16 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/inconshreveable/log15"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	opentracing "github.com/opentracing/opentracing-go"
 	ot "github.com/opentracing/opentracing-go"
 )
 
-var AlwaysTrace = false
+var (
+	AlwaysTrace = false
+	DebugLog    = true
+)
 
 func shouldTrace(ctx context.Context) bool {
 	if AlwaysTrace {
@@ -57,6 +61,9 @@ func Middleware(h http.Handler, opts ...nethttp.MWOption) http.Handler {
 func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp.MWOption) http.Handler {
 	m := nethttp.Middleware(tr, h, append([]nethttp.MWOption{
 		nethttp.MWSpanFilter(func(r *http.Request) bool {
+			if DebugLog {
+				log15.Info("trace: MiddlewareWithTracer", "url", r.URL.String(), "shouldTrace", shouldTrace(r.Context()))
+			}
 			return shouldTrace(r.Context())
 		}),
 	}, opts...)...)

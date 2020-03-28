@@ -791,6 +791,8 @@ func (c *Client) do(ctx context.Context, repo api.RepoName, method, op string, p
 		return nil, err
 	}
 
+	trace.RequestWithContextHeader(ctx, req)
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 	req = req.WithContext(ctx)
@@ -805,10 +807,6 @@ func (c *Client) do(ctx context.Context, repo api.RepoName, method, op string, p
 		nethttp.OperationName("Gitserver Client"),
 		nethttp.ClientTrace(false))
 	defer ht.Finish()
-
-	// ////////////////////////////////////////
-	// // TODO(beyang): move this to a lower level?
-	trace.RequestWithContextHeader(ctx, req)
 
 	return c.HTTPClient.Do(req)
 }

@@ -350,6 +350,8 @@ func (c *Client) httpGet(ctx context.Context, method string) (*http.Response, er
 }
 
 func (c *Client) do(ctx context.Context, req *http.Request) (_ *http.Response, err error) {
+	trace.RequestWithContextHeader(ctx, req)
+
 	span, ctx := trace.StartSpanFromContext(ctx, "Client.do")
 	defer func() {
 		if err != nil {
