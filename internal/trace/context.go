@@ -2,7 +2,6 @@ package trace
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -10,6 +9,15 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	ot "github.com/opentracing/opentracing-go"
 )
+
+var AlwaysTrace = false
+
+func shouldTrace(ctx context.Context) bool {
+	if AlwaysTrace {
+		return true
+	}
+	return FromContext(ctx)
+}
 
 func FromContext(ctx context.Context) bool {
 	v, ok := ctx.Value(contextKey).(bool)
@@ -28,12 +36,9 @@ func GetTracer(ctx context.Context) ot.Tracer {
 }
 
 func GetTracerNonGlobal(ctx context.Context, tracer ot.Tracer) ot.Tracer {
-	// TODO: incorporate config value, via init func and conf.Watch
-	if FromContext(ctx) {
-		// log.Printf("# Using tracer %T", tracer)
+	if shouldTrace(ctx) {
 		return tracer
 	}
-	// log.Printf("# Using NoopTracer")
 	return ot.NoopTracer{}
 
 }
@@ -50,23 +55,13 @@ func Middleware(h http.Handler, opts ...nethttp.MWOption) http.Handler {
 }
 
 func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp.MWOption) http.Handler {
-	// TODO: incorporate config value, via init func and conf.Watch
-	allOpts := append([]nethttp.MWOption{
+	m := nethttp.Middleware(tr, h, append([]nethttp.MWOption{
 		nethttp.MWSpanFilter(func(r *http.Request) bool {
-			shouldTrace := FromContext(r.Context())
-			if shouldTrace {
-				log.Printf("# tracing url %v", r.URL.String())
-			}
-			return shouldTrace
+			return shouldTrace(r.Context())
 		}),
-	}, opts...)
-	m := nethttp.Middleware(tr, h, allOpts...)
+	}, opts...)...)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if shouldTrace, _ := strconv.ParseBool(r.URL.Query().Get("trace")); shouldTrace {
-			m.ServeHTTP(w, r.WithContext(WithTracing(r.Context(), true)))
-			return
-		}
-		if shouldTrace, _ := strconv.ParseBool(r.Header.Get(traceHeader)); shouldTrace {
+		if traceHeaderIsTrue, _ := strconv.ParseBool(r.Header.Get(traceHeader)); traceHeaderIsTrue {
 			m.ServeHTTP(w, r.WithContext(WithTracing(r.Context(), true)))
 			return
 		}

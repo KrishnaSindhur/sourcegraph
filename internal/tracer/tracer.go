@@ -140,6 +140,7 @@ func initTracer(opts *Options) {
 		jaegerEnabledMu.Lock()
 		defer jaegerEnabledMu.Unlock()
 
+		// TODO(beyang): handle new config values
 		if useJaeger := conf.Get().UseJaeger; useJaeger && !jaegerEnabled {
 			log15.Info("Distributed tracing enabled", "tracer", "jaeger")
 			cfg, err := jaegercfg.FromEnv()
@@ -185,13 +186,13 @@ func initTracer(opts *Options) {
 	})
 }
 
-// TODO: sometimes this gets called when tracer is of type Noop. Should fix. Maybe collapse all of
-// these into 1 function, into separate functions.
 func jaegerSpanURL(span opentracing.Span) string {
-	return ""
-	// spanCtx, ok := span.Context().(jaeger.SpanContext)
-	// if !ok {
-	// 	return ""
-	// }
-	// return spanCtx.TraceID().String()
+	if span == nil {
+		return "#tracing-not-enabled-for-this-request"
+	}
+	spanCtx, ok := span.Context().(jaeger.SpanContext)
+	if !ok {
+		return "#tracing-not-enabled-for-this-request"
+	}
+	return spanCtx.TraceID().String()
 }
