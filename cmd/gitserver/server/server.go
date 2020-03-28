@@ -499,6 +499,10 @@ func (s *Server) handleArchive(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleExec(w http.ResponseWriter, r *http.Request) {
+	// if trace.FromContext(r.Context()) {
+	// 	log.Printf("# exec %v", trace.FromContext(r.Context()))
+	// }
+
 	var req protocol.ExecRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

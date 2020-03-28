@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -222,6 +223,12 @@ type badRequestError struct{ error }
 func (e badRequestError) BadRequest() bool { return true }
 
 func (c *Cmd) sendExec(ctx context.Context) (_ io.ReadCloser, _ http.Header, errRes error) {
+	// MARK0
+	ctx = trace.WithTracing(ctx, true)
+	if trace.FromContext(ctx) {
+		log.Printf("# sendExec %v", trace.FromContext(ctx))
+	}
+
 	repoName := protocol.NormalizeRepo(c.Repo.Name)
 
 	span, ctx := trace.StartSpanFromContext(ctx, "Client.sendExec")
@@ -785,6 +792,11 @@ func (c *Client) do(ctx context.Context, repo api.RepoName, method, op string, p
 	if err != nil {
 		return nil, err
 	}
+
+	// ////////////////////////////////////////
+	// // TODO(beyang): move this to a lower level?
+	trace.RequestWithContextHeader(ctx, req)
+	// req.Header.Set("X-Sourcegraphs-Trace", "true")
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
