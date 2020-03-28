@@ -31,8 +31,8 @@ var symbolsURL = env.Get("SYMBOLS_URL", "k8s+http://symbols:3184", "symbols serv
 var DefaultClient = &Client{
 	URL: symbolsURL,
 	HTTPClient: &http.Client{
-		// nethttp.Transport will propagate opentracing spans
-		Transport: &nethttp.Transport{
+		// trace.Transport will propagate opentracing spans
+		Transport: &trace.Transport{
 			RoundTripper: &http.Transport{
 				// Default is 2, but we can send many concurrent requests
 				MaxIdleConnsPerHost: 500,

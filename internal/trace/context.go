@@ -78,9 +78,12 @@ func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp
 
 const traceHeader = "X-Sourcegraph-Trace"
 
-// RequestWithContextHeader modifies the original header to set the HTTP header "X-Sourcegraph-Trace".
-// The input request (which is modified) is returned.
-func RequestWithContextHeader(ctx context.Context, r *http.Request) *http.Request {
-	r.Header.Set(traceHeader, strconv.FormatBool(FromContext(ctx)))
-	return r
+type Transport struct {
+	http.RoundTripper
+}
+
+func (r *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set(traceHeader, strconv.FormatBool(FromContext(req.Context())))
+	t := nethttp.Transport{RoundTripper: r.RoundTripper}
+	return t.RoundTrip(req)
 }

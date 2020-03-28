@@ -39,8 +39,8 @@ import (
 var requestMeter = metrics.NewRequestMeter("gitserver", "Total number of requests sent to gitserver.")
 
 // defaultTransport is the default transport used in the default client and the
-// default reverse proxy. nethttp.Transport will propagate opentracing spans.
-var defaultTransport = &nethttp.Transport{
+// default reverse proxy. trace.Transport will propagate opentracing spans.
+var defaultTransport = &trace.Transport{
 	RoundTripper: requestMeter.Transport(&http.Transport{
 		// Default is 2, but we can send many concurrent requests
 		MaxIdleConnsPerHost: 500,
@@ -790,8 +790,6 @@ func (c *Client) do(ctx context.Context, repo api.RepoName, method, op string, p
 	if err != nil {
 		return nil, err
 	}
-
-	trace.RequestWithContextHeader(ctx, req)
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)

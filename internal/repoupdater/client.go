@@ -42,8 +42,8 @@ var (
 var DefaultClient = &Client{
 	URL: repoupdaterURL,
 	HTTPClient: &http.Client{
-		// nethttp.Transport will propagate opentracing spans
-		Transport: &nethttp.Transport{
+		// trace.Transport will propagate opentracing spans and whether or not to trace
+		Transport: &trace.Transport{
 			RoundTripper: requestMeter.Transport(&http.Transport{
 				// Default is 2, but we can send many concurrent requests
 				MaxIdleConnsPerHost: 500,
@@ -350,8 +350,6 @@ func (c *Client) httpGet(ctx context.Context, method string) (*http.Response, er
 }
 
 func (c *Client) do(ctx context.Context, req *http.Request) (_ *http.Response, err error) {
-	trace.RequestWithContextHeader(ctx, req)
-
 	span, ctx := trace.StartSpanFromContext(ctx, "Client.do")
 	defer func() {
 		if err != nil {

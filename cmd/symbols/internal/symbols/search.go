@@ -69,7 +69,6 @@ func (s *Service) search(ctx context.Context, args protocol.SearchArgs) (result 
 	defer cancel()
 
 	log15.Debug("Symbol search", "repo", args.Repo, "query", args.Query)
-
 	span, ctx := trace.StartSpanFromContext(ctx, "search")
 	span.SetTag("repo", args.Repo)
 	span.SetTag("commitID", args.CommitID)

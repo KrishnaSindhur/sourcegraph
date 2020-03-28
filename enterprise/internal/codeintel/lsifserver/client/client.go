@@ -6,9 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"github.com/sourcegraph/sourcegraph/internal/endpoint"
 	"github.com/sourcegraph/sourcegraph/internal/env"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 )
 
 var (
@@ -21,8 +21,8 @@ var (
 	DefaultClient = &Client{
 		endpoint: LSIFURLs(),
 		HTTPClient: &http.Client{
-			// nethttp.Transport will propagate opentracing spans
-			Transport: &nethttp.Transport{},
+			// trace.Transport will propagate opentracing spans
+			Transport: &trace.Transport{},
 		},
 	}
 )

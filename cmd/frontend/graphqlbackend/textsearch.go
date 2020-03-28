@@ -42,8 +42,8 @@ var (
 	requestCounter = metrics.NewRequestMeter("textsearch", "Total number of requests sent to the textsearch API.")
 
 	searchHTTPClient = &http.Client{
-		// nethttp.Transport will propagate opentracing spans
-		Transport: &nethttp.Transport{
+		// trace.Transport will propagate opentracing spans
+		Transport: &trace.Transport{
 			RoundTripper: requestCounter.Transport(&http.Transport{
 				// Default is 2, but we can send many concurrent requests
 				MaxIdleConnsPerHost: 500,
