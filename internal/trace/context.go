@@ -61,18 +61,21 @@ func Middleware(h http.Handler, opts ...nethttp.MWOption) http.Handler {
 func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp.MWOption) http.Handler {
 	m := nethttp.Middleware(tr, h, append([]nethttp.MWOption{
 		nethttp.MWSpanFilter(func(r *http.Request) bool {
-			if DebugLog {
-				log15.Info("trace: MiddlewareWithTracer", "url", r.URL.String(), "shouldTrace", shouldTrace(r.Context()))
-			}
 			return shouldTrace(r.Context())
 		}),
 	}, opts...)...)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if traceHeaderIsTrue, _ := strconv.ParseBool(r.Header.Get(traceHeader)); traceHeaderIsTrue {
-			m.ServeHTTP(w, r.WithContext(WithTracing(r.Context(), true)))
-			return
+	m2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if DebugLog {
+			log15.Info("trace: MiddlewareWithTracer", "url", r.URL.String(), "shouldTrace", shouldTrace(r.Context()))
 		}
 		m.ServeHTTP(w, r)
+	})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if traceHeaderIsTrue, _ := strconv.ParseBool(r.Header.Get(traceHeader)); traceHeaderIsTrue {
+			m2.ServeHTTP(w, r.WithContext(WithTracing(r.Context(), true)))
+			return
+		}
+		m2.ServeHTTP(w, r)
 	})
 }
 
