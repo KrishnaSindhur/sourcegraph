@@ -33,7 +33,7 @@ var (
 	DebugLog                  = true
 )
 
-func fromContext(ctx context.Context) bool {
+func ShouldTrace(ctx context.Context) bool {
 	v, ok := ctx.Value(shouldTraceKey).(bool)
 	if !ok {
 		return false
@@ -41,8 +41,8 @@ func fromContext(ctx context.Context) bool {
 	return v
 }
 
-// withTracing sets the tracing context item, which will enable traces on operations that use the context.
-func withTracing(ctx context.Context, shouldTrace bool) context.Context {
+// WithShouldTrace sets the tracing context item, which will enable traces on operations that use the context.
+func WithShouldTrace(ctx context.Context, shouldTrace bool) context.Context {
 	return context.WithValue(ctx, shouldTraceKey, shouldTrace)
 }
 
@@ -51,7 +51,7 @@ func GetTracer(ctx context.Context) opentracing.Tracer {
 }
 
 func getTracer(ctx context.Context, tracer opentracing.Tracer) opentracing.Tracer {
-	if !fromContext(ctx) {
+	if !ShouldTrace(ctx) {
 		return opentracing.NoopTracer{}
 	}
 	if tracer != nil {
@@ -78,7 +78,7 @@ func Middleware(h http.Handler, opts ...nethttp.MWOption) http.Handler {
 func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp.MWOption) http.Handler {
 	m2 := nethttp.Middleware(tr, h, append([]nethttp.MWOption{
 		nethttp.MWSpanFilter(func(r *http.Request) bool {
-			return fromContext(r.Context())
+			return ShouldTrace(r.Context())
 		}),
 	}, opts...)...)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -86,13 +86,13 @@ func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp
 		switch Sampling {
 		case "selective":
 			traceHeaderIsTrue, _ := strconv.ParseBool(r.Header.Get(traceHeader))
-			m2.ServeHTTP(w, r.WithContext(withTracing(r.Context(), traceHeaderIsTrue)))
+			m2.ServeHTTP(w, r.WithContext(WithShouldTrace(r.Context(), traceHeaderIsTrue)))
 			return
 		case "comprehensive":
-			m2.ServeHTTP(w, r.WithContext(withTracing(r.Context(), true)))
+			m2.ServeHTTP(w, r.WithContext(WithShouldTrace(r.Context(), true)))
 			return
 		default:
-			m2.ServeHTTP(w, r.WithContext(withTracing(r.Context(), false)))
+			m2.ServeHTTP(w, r.WithContext(WithShouldTrace(r.Context(), false)))
 			return
 		}
 	})
@@ -105,7 +105,7 @@ type Transport struct {
 }
 
 func (r *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set(traceHeader, strconv.FormatBool(fromContext(req.Context())))
+	req.Header.Set(traceHeader, strconv.FormatBool(ShouldTrace(req.Context())))
 	t := nethttp.Transport{RoundTripper: r.RoundTripper}
 	return t.RoundTrip(req)
 }

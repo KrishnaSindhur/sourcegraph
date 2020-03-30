@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"reflect"
 	"sync"
@@ -152,7 +151,6 @@ func initTracer(opts *Options) {
 		} else if siteConfig.UseJaeger {
 			samplingStrategy = ot.SampleAll
 		}
-		log.Printf("# initTracer samplingStrategy: %v", samplingStrategy)
 		ot.Sampling = samplingStrategy
 
 		// Set global tracer (Jaeger or No-op). Mutex-protected
@@ -181,7 +179,8 @@ func initTracer(opts *Options) {
 				log15.Warn("Could not initialize jaeger tracer", "error", err.Error())
 				return
 			}
-			opentracing.SetGlobalTracer(tracer)
+			// opentracing.SetGlobalTracer(tracer)
+			opentracing.SetGlobalTracer(loggingTracer{tracer})
 			jaegerCloser = closer
 			trace.SpanURL = jaegerSpanURL
 			jaegerEnabled = true
@@ -203,13 +202,25 @@ func initTracer(opts *Options) {
 	})
 }
 
+type loggingTracer struct {
+	opentracing.Tracer
+}
+
+func (t loggingTracer) StartSpan(operationName string, opts ...opentracing.StartSpanOption) opentracing.Span {
+	// log.Printf("######### jaeger.StartSpan")
+	// debug.PrintStack()
+	return t.Tracer.StartSpan(operationName, opts...)
+}
+
+const tracingNotEnabledURL = "#tracing_not_enabled_for_this_request_add_?trace=1_to_url_to_enable"
+
 func jaegerSpanURL(span opentracing.Span) string {
 	if span == nil {
-		return "#tracing-not-enabled-for-this-request"
+		return tracingNotEnabledURL
 	}
 	spanCtx, ok := span.Context().(jaeger.SpanContext)
 	if !ok {
-		return "#tracing-not-enabled-for-this-request"
+		return tracingNotEnabledURL
 	}
 	return spanCtx.TraceID().String()
 }
