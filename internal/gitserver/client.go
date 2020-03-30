@@ -222,11 +222,6 @@ type badRequestError struct{ error }
 func (e badRequestError) BadRequest() bool { return true }
 
 func (c *Cmd) sendExec(ctx context.Context) (_ io.ReadCloser, _ http.Header, errRes error) {
-	// ctx = trace.WithTracing(ctx, true)
-	// if trace.FromContext(ctx) {
-	// 	log.Printf("# sendExec %v", trace.FromContext(ctx))
-	// }
-
 	repoName := protocol.NormalizeRepo(c.Repo.Name)
 
 	span, ctx := trace.StartSpanFromContext(ctx, "Client.sendExec")

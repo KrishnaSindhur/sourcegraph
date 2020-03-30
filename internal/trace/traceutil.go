@@ -35,9 +35,9 @@ type Tracer struct {
 
 // New returns a new Trace with the specified family and title.
 func (t Tracer) New(ctx context.Context, family, title string) (*Trace, context.Context) {
-	span, ctx := opentracing.StartSpanFromContextWithTracer(
+	span, ctx := StartSpanFromContextWithTracer(
 		ctx,
-		GetTracerNonGlobal(ctx, t.Tracer),
+		t.Tracer,
 		family,
 		opentracing.Tag{Key: "title", Value: title},
 	)

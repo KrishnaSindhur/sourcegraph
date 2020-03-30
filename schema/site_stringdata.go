@@ -596,7 +596,7 @@ const SiteSchemaJSON = `{
         "sampling": {
           "description": "The application-level sampling mode. Note that this is distinct from Jaeger's internal sampling setting.",
           "type": "string",
-          "enum": ["selective", "comprehensive"],
+          "enum": ["selective", "comprehensive", "none"],
           "default": "selective"
         }
       }

@@ -134,9 +134,6 @@ func (s *Service) search(ctx context.Context, p *protocol.Request) (matches []pr
 	tr := nettrace.New("search", fmt.Sprintf("%s@%s", p.Repo, p.Commit))
 	tr.LazyPrintf("%s", p.Pattern)
 
-	// log.Printf("# search")
-	// debug.PrintStack()
-	// log.Printf("# TRACE %v", trace.FromContext(ctx))
 	span, ctx := trace.StartSpanFromContext(ctx, "Search")
 	ext.Component.Set(span, "service")
 	span.SetTag("repo", p.Repo)
