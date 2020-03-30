@@ -64,6 +64,8 @@ func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp
 			return shouldTrace(r.Context())
 		}),
 	}, opts...)...)
+
+	// logging
 	m2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if DebugLog {
 			log15.Info("trace: MiddlewareWithTracer", "url", r.URL.String(), "shouldTrace", shouldTrace(r.Context()))
