@@ -8,7 +8,7 @@ import (
 
 	"github.com/sourcegraph/sourcegraph/internal/endpoint"
 	"github.com/sourcegraph/sourcegraph/internal/env"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 var (
@@ -21,8 +21,8 @@ var (
 	DefaultClient = &Client{
 		endpoint: LSIFURLs(),
 		HTTPClient: &http.Client{
-			// trace.Transport will propagate opentracing spans
-			Transport: &trace.Transport{},
+			// ot.Transport will propagate opentracing spans
+			Transport: &ot.Transport{},
 		},
 	}
 )

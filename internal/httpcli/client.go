@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/httputil"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 // A Doer captures the Do method of an http.Client. It faciliates decorating
@@ -241,7 +241,7 @@ func TracedTransportOpt(cli *http.Client) error {
 		cli.Transport = http.DefaultTransport
 	}
 
-	cli.Transport = &trace.Transport{RoundTripper: cli.Transport}
+	cli.Transport = &ot.Transport{RoundTripper: cli.Transport}
 	return nil
 }
 

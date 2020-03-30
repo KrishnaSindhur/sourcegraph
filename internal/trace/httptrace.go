@@ -32,7 +32,6 @@ const (
 	requestErrorCauseKey
 	graphQLRequestNameKey
 	originKey
-	shouldTraceKey
 )
 
 // trackOrigin specifies a URL value. When an incoming request has the request header "Origin" set

@@ -39,6 +39,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/mutablelimiter"
 	"github.com/sourcegraph/sourcegraph/internal/repotrackutil"
 	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 // tempDirName is the name used for the temporary directory under ReposDir.
@@ -79,7 +80,7 @@ func runCommand(ctx context.Context, cmd *exec.Cmd) (exitCode int, err error) {
 	if runCommandMock != nil {
 		return runCommandMock(ctx, cmd)
 	}
-	span, _ := trace.StartSpanFromContext(ctx, "runCommand")
+	span, _ := ot.StartSpanFromContext(ctx, "runCommand")
 	span.SetTag("path", cmd.Path)
 	span.SetTag("args", cmd.Args)
 	span.SetTag("dir", cmd.Dir)
@@ -1047,7 +1048,7 @@ func init() {
 var headBranchPattern = lazyregexp.New(`HEAD branch: (.+?)\n`)
 
 func (s *Server) doRepoUpdate(ctx context.Context, repo api.RepoName, url string) error {
-	span, ctx := trace.StartSpanFromContext(ctx, "Server.doRepoUpdate")
+	span, ctx := ot.StartSpanFromContext(ctx, "Server.doRepoUpdate")
 	span.SetTag("repo", repo)
 	span.SetTag("url", url)
 	defer span.Finish()

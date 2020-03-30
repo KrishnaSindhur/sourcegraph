@@ -11,7 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/internal/vcs"
 )
 
@@ -34,7 +34,7 @@ func ExecSafe(ctx context.Context, repo gitserver.Repo, params []string) (stdout
 		return Mocks.ExecSafe(params)
 	}
 
-	span, ctx := trace.StartSpanFromContext(ctx, "Git: ExecSafe")
+	span, ctx := ot.StartSpanFromContext(ctx, "Git: ExecSafe")
 	defer span.Finish()
 
 	if len(params) == 0 {
@@ -58,7 +58,7 @@ func ExecSafe(ctx context.Context, repo gitserver.Repo, params []string) (stdout
 // ExecReader executes an arbitrary `git` command (`git [args...]`) and returns a reader connected
 // to its stdout.
 func ExecReader(ctx context.Context, repo gitserver.Repo, args []string) (io.ReadCloser, error) {
-	span, ctx := trace.StartSpanFromContext(ctx, "Git: ExecReader")
+	span, ctx := ot.StartSpanFromContext(ctx, "Git: ExecReader")
 	span.SetTag("args", args)
 	defer span.Finish()
 

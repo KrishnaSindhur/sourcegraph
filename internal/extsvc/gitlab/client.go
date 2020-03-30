@@ -21,7 +21,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/metrics"
 	"github.com/sourcegraph/sourcegraph/internal/ratelimit"
 	"github.com/sourcegraph/sourcegraph/internal/rcache"
-	pkgtrace "github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 var (
@@ -215,7 +215,7 @@ func (c *Client) do(ctx context.Context, req *http.Request, result interface{}) 
 
 	var resp *http.Response
 
-	span, ctx := pkgtrace.StartSpanFromContext(ctx, "GitLab")
+	span, ctx := ot.StartSpanFromContext(ctx, "GitLab")
 	span.SetTag("URL", req.URL.String())
 	defer func() {
 		if err != nil {

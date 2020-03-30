@@ -11,6 +11,7 @@ import (
 
 	"github.com/sourcegraph/sourcegraph/internal/actor"
 	tracepkg "github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 var metricLabels = []string{"method", "success"}
@@ -37,7 +38,7 @@ func init() {
 func trace(ctx context.Context, server, method string, arg interface{}, err *error) (context.Context, func()) {
 	requestGauge.WithLabelValues(server + "." + method).Inc()
 
-	span, ctx := tracepkg.StartSpanFromContext(ctx, server+"."+method)
+	span, ctx := ot.StartSpanFromContext(ctx, server+"."+method)
 	span.SetTag("Server", server)
 	span.SetTag("Method", method)
 	span.SetTag("Argument", fmt.Sprintf("%#v", arg))

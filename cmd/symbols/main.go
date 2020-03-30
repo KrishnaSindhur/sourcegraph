@@ -24,7 +24,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/debugserver"
 	"github.com/sourcegraph/sourcegraph/internal/env"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/internal/tracer"
 )
 
@@ -72,7 +72,7 @@ func main() {
 	if err := service.Start(); err != nil {
 		log.Fatalln("Start:", err)
 	}
-	handler := trace.Middleware(service.Handler())
+	handler := ot.Middleware(service.Handler())
 
 	host := ""
 	if env.InsecureDev {

@@ -1,4 +1,8 @@
-package trace
+// Package ot wraps github.com/opentracing/opentracing-go and
+// github.com./opentracing-contrib/go-stdlib with selective tracing behavior that is toggled on and
+// off with the presence of a context item (uses context.Context). This context item is propagated
+// across API boundaries through a HTTP header (X-Sourcegraph-Trace).
+package ot
 
 import (
 	"context"
@@ -6,7 +10,13 @@ import (
 	"strconv"
 
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
-	ot "github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go"
+)
+
+type key int
+
+const (
+	shouldTraceKey key = iota
 )
 
 type SamplingStrategy string
@@ -35,36 +45,36 @@ func withTracing(ctx context.Context, shouldTrace bool) context.Context {
 	return context.WithValue(ctx, shouldTraceKey, shouldTrace)
 }
 
-func GetTracer(ctx context.Context) ot.Tracer {
-	return getTracer(ctx, ot.GlobalTracer())
+func GetTracer(ctx context.Context) opentracing.Tracer {
+	return getTracer(ctx, opentracing.GlobalTracer())
 }
 
-func getTracer(ctx context.Context, tracer ot.Tracer) ot.Tracer {
+func getTracer(ctx context.Context, tracer opentracing.Tracer) opentracing.Tracer {
 	if !fromContext(ctx) {
-		return ot.NoopTracer{}
+		return opentracing.NoopTracer{}
 	}
 	if tracer != nil {
 		return tracer
 	}
-	return ot.GlobalTracer()
+	return opentracing.GlobalTracer()
 }
 
 // StartSpanFromContext conditionally starts a span either with the global tracer or the NoopTracer,
 // depending on whether the context item is set and if selective tracing is enabled in the site
 // configuration.
-func StartSpanFromContext(ctx context.Context, operationName string, opts ...ot.StartSpanOption) (ot.Span, context.Context) {
-	return StartSpanFromContextWithTracer(ctx, ot.GlobalTracer(), operationName, opts...)
+func StartSpanFromContext(ctx context.Context, operationName string, opts ...opentracing.StartSpanOption) (opentracing.Span, context.Context) {
+	return StartSpanFromContextWithTracer(ctx, opentracing.GlobalTracer(), operationName, opts...)
 }
 
-func StartSpanFromContextWithTracer(ctx context.Context, tracer ot.Tracer, operationName string, opts ...ot.StartSpanOption) (ot.Span, context.Context) {
-	return ot.StartSpanFromContextWithTracer(ctx, getTracer(ctx, tracer), operationName, opts...)
+func StartSpanFromContextWithTracer(ctx context.Context, tracer opentracing.Tracer, operationName string, opts ...opentracing.StartSpanOption) (opentracing.Span, context.Context) {
+	return opentracing.StartSpanFromContextWithTracer(ctx, getTracer(ctx, tracer), operationName, opts...)
 }
 
 func Middleware(h http.Handler, opts ...nethttp.MWOption) http.Handler {
-	return MiddlewareWithTracer(ot.GlobalTracer(), h)
+	return MiddlewareWithTracer(opentracing.GlobalTracer(), h)
 }
 
-func MiddlewareWithTracer(tr ot.Tracer, h http.Handler, opts ...nethttp.MWOption) http.Handler {
+func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp.MWOption) http.Handler {
 	m2 := nethttp.Middleware(tr, h, append([]nethttp.MWOption{
 		nethttp.MWSpanFilter(func(r *http.Request) bool {
 			return fromContext(r.Context())

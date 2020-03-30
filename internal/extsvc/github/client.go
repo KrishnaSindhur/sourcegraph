@@ -24,7 +24,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/metrics"
 	"github.com/sourcegraph/sourcegraph/internal/ratelimit"
 	"github.com/sourcegraph/sourcegraph/internal/rcache"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 var (
@@ -198,7 +198,7 @@ func (c *Client) do(ctx context.Context, token string, req *http.Request, result
 
 	var resp *http.Response
 
-	span, ctx := trace.StartSpanFromContext(ctx, "GitHub")
+	span, ctx := ot.StartSpanFromContext(ctx, "GitHub")
 	span.SetTag("URL", req.URL.String())
 	defer func() {
 		if err != nil {

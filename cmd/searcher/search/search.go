@@ -24,7 +24,7 @@ import (
 
 	"github.com/sourcegraph/sourcegraph/cmd/searcher/protocol"
 	"github.com/sourcegraph/sourcegraph/internal/store"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	nettrace "golang.org/x/net/trace"
 
 	"github.com/pkg/errors"
@@ -134,7 +134,7 @@ func (s *Service) search(ctx context.Context, p *protocol.Request) (matches []pr
 	tr := nettrace.New("search", fmt.Sprintf("%s@%s", p.Repo, p.Commit))
 	tr.LazyPrintf("%s", p.Pattern)
 
-	span, ctx := trace.StartSpanFromContext(ctx, "Search")
+	span, ctx := ot.StartSpanFromContext(ctx, "Search")
 	ext.Component.Set(span, "service")
 	span.SetTag("repo", p.Repo)
 	span.SetTag("url", p.URL)

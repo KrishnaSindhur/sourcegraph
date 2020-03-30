@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/internal/vcs"
 )
 
@@ -62,7 +62,7 @@ func ResolveRevision(ctx context.Context, repo gitserver.Repo, remoteURLFunc fun
 		return Mocks.ResolveRevision(spec, opt)
 	}
 
-	span, ctx := trace.StartSpanFromContext(ctx, "Git: ResolveRevision")
+	span, ctx := ot.StartSpanFromContext(ctx, "Git: ResolveRevision")
 	span.SetTag("Spec", spec)
 	span.SetTag("Opt", fmt.Sprintf("%+v", opt))
 	defer span.Finish()

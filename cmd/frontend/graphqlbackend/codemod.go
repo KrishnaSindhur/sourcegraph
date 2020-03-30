@@ -23,6 +23,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/search"
 	"github.com/sourcegraph/sourcegraph/internal/search/query"
 	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/internal/vcs/git"
 	"golang.org/x/net/context/ctxhttp"
 )
@@ -258,7 +259,7 @@ func callCodemodInRepo(ctx context.Context, repoRevs *search.RepositoryRevisions
 	}
 	req = req.WithContext(ctx)
 
-	req, ht := nethttp.TraceRequest(trace.GetTracer(ctx), req,
+	req, ht := nethttp.TraceRequest(ot.GetTracer(ctx), req,
 		nethttp.OperationName("Codemod client"),
 		nethttp.ClientTrace(false))
 	defer ht.Finish()

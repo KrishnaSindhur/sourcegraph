@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sourcegraph/sourcegraph/cmd/repo-updater/repos"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 // HandlerMetrics encapsulates the Prometheus metrics of an http.Handler.
@@ -54,7 +54,7 @@ func ObservedHandler(
 	tr opentracing.Tracer,
 ) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		return trace.MiddlewareWithTracer(tr,
+		return ot.MiddlewareWithTracer(tr,
 			&observedHandler{
 				next:    next,
 				log:     log,

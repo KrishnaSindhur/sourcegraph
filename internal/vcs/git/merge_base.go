@@ -8,12 +8,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 // MergeBase returns the merge base commit for the specified commits.
 func MergeBase(ctx context.Context, repo gitserver.Repo, a, b api.CommitID) (api.CommitID, error) {
-	span, ctx := trace.StartSpanFromContext(ctx, "Git: MergeBase")
+	span, ctx := ot.StartSpanFromContext(ctx, "Git: MergeBase")
 	span.SetTag("A", a)
 	span.SetTag("B", b)
 	defer span.Finish()

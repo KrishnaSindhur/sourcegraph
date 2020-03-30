@@ -22,7 +22,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/env"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
 	"github.com/sourcegraph/sourcegraph/internal/store"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/internal/tracer"
 )
 
@@ -58,7 +58,7 @@ func main() {
 	}
 	service.Store.SetMaxConcurrentFetchTar(10)
 	service.Store.Start()
-	handler := trace.Middleware(service)
+	handler := ot.Middleware(service)
 
 	host := ""
 	if env.InsecureDev {

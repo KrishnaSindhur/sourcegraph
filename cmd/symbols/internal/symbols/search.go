@@ -22,7 +22,7 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 	otlog "github.com/opentracing/opentracing-go/log"
 	"github.com/sourcegraph/sourcegraph/internal/symbols/protocol"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	nettrace "golang.org/x/net/trace"
 )
 
@@ -69,7 +69,7 @@ func (s *Service) search(ctx context.Context, args protocol.SearchArgs) (result 
 	defer cancel()
 
 	log15.Debug("Symbol search", "repo", args.Repo, "query", args.Query)
-	span, ctx := trace.StartSpanFromContext(ctx, "search")
+	span, ctx := ot.StartSpanFromContext(ctx, "search")
 	span.SetTag("repo", args.Repo)
 	span.SetTag("commitID", args.CommitID)
 	span.SetTag("query", args.Query)
@@ -151,7 +151,7 @@ func isLiteralEquality(expr string) (ok bool, lit string, err error) {
 }
 
 func filterSymbols(ctx context.Context, db *sqlx.DB, args protocol.SearchArgs) (res []protocol.Symbol, err error) {
-	span, _ := trace.StartSpanFromContext(ctx, "filterSymbols")
+	span, _ := ot.StartSpanFromContext(ctx, "filterSymbols")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

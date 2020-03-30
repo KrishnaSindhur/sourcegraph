@@ -10,6 +10,7 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	nettrace "golang.org/x/net/trace"
 )
 
@@ -22,7 +23,7 @@ var SpanURL = NoopSpanURL
 
 // New returns a new Trace with the specified family and title.
 func New(ctx context.Context, family, title string) (*Trace, context.Context) {
-	tr := Tracer{Tracer: GetTracer(ctx)}
+	tr := Tracer{Tracer: ot.GetTracer(ctx)}
 	return tr.New(ctx, family, title)
 }
 
@@ -35,7 +36,7 @@ type Tracer struct {
 
 // New returns a new Trace with the specified family and title.
 func (t Tracer) New(ctx context.Context, family, title string) (*Trace, context.Context) {
-	span, ctx := StartSpanFromContextWithTracer(
+	span, ctx := ot.StartSpanFromContextWithTracer(
 		ctx,
 		t.Tracer,
 		family,

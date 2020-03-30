@@ -147,7 +147,7 @@ func initTracer(opts *Options) {
 	// 	trace.Set = samplingStrategy
 	// })
 
-	// TODO: set sampling strategy (atomically if appropriate)
+	// >>>>>>>>>>> TODO(beyang): set sampling strategy (atomically if appropriate)
 
 	// State
 	var jaegerEnabled bool

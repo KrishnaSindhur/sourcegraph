@@ -19,7 +19,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/cmd/gitserver/server"
 	"github.com/sourcegraph/sourcegraph/internal/debugserver"
 	"github.com/sourcegraph/sourcegraph/internal/env"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/internal/tracer"
 )
 
@@ -62,7 +62,7 @@ func main() {
 	}
 
 	// Create Handler now since it also initializes state
-	handler := trace.Middleware(gitserver.Handler())
+	handler := ot.Middleware(gitserver.Handler())
 
 	go debugserver.Start()
 

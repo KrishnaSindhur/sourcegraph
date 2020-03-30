@@ -17,6 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/conf"
 	"github.com/sourcegraph/sourcegraph/internal/metrics"
+	"github.com/sourcegraph/sourcegraph/internal/trace"
 
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	otlog "github.com/opentracing/opentracing-go/log"
@@ -31,7 +32,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/search"
 	"github.com/sourcegraph/sourcegraph/internal/search/query"
 	querytypes "github.com/sourcegraph/sourcegraph/internal/search/query/types"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/internal/vcs/git"
 )
 
@@ -42,8 +43,8 @@ var (
 	requestCounter = metrics.NewRequestMeter("textsearch", "Total number of requests sent to the textsearch API.")
 
 	searchHTTPClient = &http.Client{
-		// trace.Transport will propagate opentracing spans
-		Transport: &trace.Transport{
+		// ot.Transport will propagate opentracing spans
+		Transport: &ot.Transport{
 			RoundTripper: requestCounter.Transport(&http.Transport{
 				// Default is 2, but we can send many concurrent requests
 				MaxIdleConnsPerHost: 500,
@@ -301,7 +302,7 @@ func textSearchURL(ctx context.Context, url string) ([]*FileMatchResolver, bool,
 	}
 	req = req.WithContext(ctx)
 
-	req, ht := nethttp.TraceRequest(trace.GetTracer(ctx), req,
+	req, ht := nethttp.TraceRequest(ot.GetTracer(ctx), req,
 		nethttp.OperationName("Searcher Client"),
 		nethttp.ClientTrace(false))
 	defer ht.Finish()

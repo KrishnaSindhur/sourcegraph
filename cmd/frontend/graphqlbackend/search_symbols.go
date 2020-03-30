@@ -27,6 +27,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/search/query"
 	"github.com/sourcegraph/sourcegraph/internal/symbols/protocol"
 	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"github.com/sourcegraph/sourcegraph/internal/vcs/git"
 )
 
@@ -251,7 +252,7 @@ func symbolCount(fmrs []*FileMatchResolver) int {
 }
 
 func searchSymbolsInRepo(ctx context.Context, repoRevs *search.RepositoryRevisions, patternInfo *search.TextPatternInfo, query query.QueryInfo, limit int) (res []*FileMatchResolver, err error) {
-	span, ctx := trace.StartSpanFromContext(ctx, "Search symbols in repo")
+	span, ctx := ot.StartSpanFromContext(ctx, "Search symbols in repo")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

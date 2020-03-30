@@ -15,7 +15,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/cmd/symbols/internal/pkg/ctags"
 	"github.com/sourcegraph/sourcegraph/internal/api"
 	"github.com/sourcegraph/sourcegraph/internal/symbols/protocol"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	nettrace "golang.org/x/net/trace"
 )
 
@@ -38,7 +38,7 @@ func (s *Service) startParsers() error {
 }
 
 func (s *Service) parseUncached(ctx context.Context, repo api.RepoName, commitID api.CommitID, callback func(symbol protocol.Symbol) error) (err error) {
-	span, ctx := trace.StartSpanFromContext(ctx, "parseUncached")
+	span, ctx := ot.StartSpanFromContext(ctx, "parseUncached")
 	defer func() {
 		if err != nil {
 			ext.Error.Set(span, true)

@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sourcegraph/sourcegraph/internal/gitserver"
-	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 )
 
 // OID is a Git OID (40-char hex-encoded).
@@ -33,7 +33,7 @@ func GetObject(ctx context.Context, repo gitserver.Repo, objectName string) (oid
 		return Mocks.GetObject(objectName)
 	}
 
-	span, ctx := trace.StartSpanFromContext(ctx, "Git: GetObject")
+	span, ctx := ot.StartSpanFromContext(ctx, "Git: GetObject")
 	span.SetTag("objectName", objectName)
 	defer span.Finish()
 
