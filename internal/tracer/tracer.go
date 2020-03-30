@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"reflect"
+	"runtime/debug"
 	"sync"
 
 	"github.com/fatih/color"
@@ -207,8 +209,8 @@ type loggingTracer struct {
 }
 
 func (t loggingTracer) StartSpan(operationName string, opts ...opentracing.StartSpanOption) opentracing.Span {
-	// log.Printf("######### jaeger.StartSpan")
-	// debug.PrintStack()
+	log.Printf("######### jaeger.StartSpan")
+	debug.PrintStack()
 	return t.Tracer.StartSpan(operationName, opts...)
 }
 

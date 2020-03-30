@@ -17,6 +17,7 @@ import (
 	"github.com/sourcegraph/gosyntect"
 	"github.com/sourcegraph/sourcegraph/internal/env"
 	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
@@ -153,12 +154,12 @@ func Code(ctx context.Context, p Params) (h template.HTML, aborted bool, err err
 		stabilizeTimeout = 30 * time.Second
 	}
 
-	resp, err := client.Highlight(ctx, &gosyntect.Query{
+	resp, err := client.HighlightWithTracing(ctx, &gosyntect.Query{
 		Code:             code,
 		Filepath:         p.Filepath,
 		Theme:            themechoice,
 		StabilizeTimeout: stabilizeTimeout,
-	})
+	}, ot.GetTracer(ctx))
 
 	if ctx.Err() == context.DeadlineExceeded {
 		log15.Warn(
