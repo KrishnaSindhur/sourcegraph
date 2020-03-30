@@ -13,6 +13,7 @@ import (
 	"github.com/sourcegraph/sourcegraph/internal/conf"
 	"github.com/sourcegraph/sourcegraph/internal/env"
 	"github.com/sourcegraph/sourcegraph/internal/trace"
+	"github.com/sourcegraph/sourcegraph/internal/trace/ot"
 	"go.uber.org/automaxprocs/maxprocs"
 
 	opentracing "github.com/opentracing/opentracing-go"
@@ -130,37 +131,33 @@ func Init(options ...Option) {
 
 // initTracer is a helper that should be called exactly once (from Init).
 func initTracer(opts *Options) {
-
-	// conf.Watch(func() {
-	// 	var samplingStrategy trace.SamplingStrategy = trace.SampleNone
-	// 	siteConfig := conf.Get()
-	// 	if siteConfig.TracingJaeger != nil {
-	// 		switch siteConfig.TracingJaeger.Sampling {
-	// 		case "comprehensive":
-	// 			samplingStrategy = trace.SampleAll
-	// 		case "selective":
-	// 			samplingStrategy = trace.SampleSelective
-	// 		}
-	// 	} else if siteConfig.UseJaeger {
-	// 		samplingStrategy = trace.SampleAll
-	// 	}
-	// 	trace.Set = samplingStrategy
-	// })
-
-	// >>>>>>>>>>> TODO(beyang): set sampling strategy (atomically if appropriate)
-
-	// State
+	// Jaeger-related state
 	var jaegerEnabled bool
 	var jaegerCloser io.Closer
 	var jaegerEnabledMu sync.Mutex
 
 	// Watch loop
 	conf.Watch(func() {
+		// Set sampling strategy
+		samplingStrategy := ot.SampleNone
+		siteConfig := conf.Get()
+		if siteConfig.TracingJaeger != nil {
+			switch siteConfig.TracingJaeger.Sampling {
+			case "comprehensive":
+				samplingStrategy = ot.SampleAll
+			case "selective":
+				samplingStrategy = ot.SampleSelective
+			}
+		} else if siteConfig.UseJaeger {
+			samplingStrategy = ot.SampleAll
+		}
+		ot.Sampling = samplingStrategy
+
+		// Set global tracer (Jaeger or No-op). Mutex-protected
 		jaegerEnabledMu.Lock()
 		defer jaegerEnabledMu.Unlock()
-
-		if useJaeger := conf.Get().UseJaeger; useJaeger && !jaegerEnabled {
-			log15.Info("Distributed tracing enabled", "tracer", "jaeger")
+		if !jaegerEnabled && (samplingStrategy == ot.SampleAll || samplingStrategy == ot.SampleSelective) {
+			log15.Info("Distributed tracing enabled", "tracer", "jaeger", "sampling", samplingStrategy)
 			cfg, err := jaegercfg.FromEnv()
 			cfg.ServiceName = opts.serviceName
 			if err != nil {
@@ -186,7 +183,7 @@ func initTracer(opts *Options) {
 			jaegerCloser = closer
 			trace.SpanURL = jaegerSpanURL
 			jaegerEnabled = true
-		} else if !useJaeger && jaegerEnabled {
+		} else if jaegerEnabled && (samplingStrategy == ot.SampleNone) {
 			log15.Info("Distributed tracing disabled")
 			if existingJaegerCloser := jaegerCloser; existingJaegerCloser != nil {
 				go func() { // do outside critical region
