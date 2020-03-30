@@ -2,19 +2,11 @@ package trace
 
 import (
 	"context"
-	"io"
 	"net/http"
-	"reflect"
 	"strconv"
-	"sync"
 
-	"github.com/inconshreveable/log15"
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	ot "github.com/opentracing/opentracing-go"
-	jaeger "github.com/uber/jaeger-client-go"
-	jaegercfg "github.com/uber/jaeger-client-go/config"
-	jaegerlog "github.com/uber/jaeger-client-go/log"
-	jaegermetrics "github.com/uber/jaeger-lib/metrics"
 )
 
 type SamplingStrategy string
@@ -26,74 +18,9 @@ const (
 )
 
 var (
-	Sampling     SamplingStrategy = "none"
-	jaegerCloser io.Closer
-	samplingMu   sync.Mutex
-	DebugLog     = true
+	Sampling SamplingStrategy = "none"
+	DebugLog                  = true
 )
-
-func SetSamplingStrategy(s SamplingStrategy) {
-	samplingMu.Lock()
-	defer samplingMu.Unlock()
-
-	if s == Sampling {
-		return
-	}
-	switch s {
-	case SampleSelective, SampleAll:
-		log15.Info("Distributed tracing enabled", "tracer", "jaeger")
-		cfg, err := jaegercfg.FromEnv()
-		if err != nil {
-			log15.Warn("Could not initialize jaeger tracer from env", "error", err.Error())
-			return
-		}
-		cfg.ServiceName = opts.serviceName
-		if reflect.DeepEqual(cfg.Sampler, &jaegercfg.SamplerConfig{}) {
-			// Default sampler configuration for when it is not specified via
-			// JAEGER_SAMPLER_* env vars. In most cases, this is sufficient
-			// enough to connect Sourcegraph to Jaeger without any env vars.
-			cfg.Sampler.Type = jaeger.SamplerTypeConst
-			cfg.Sampler.Param = 1
-		}
-		tracer, closer, err := cfg.NewTracer(
-			jaegercfg.Logger(jaegerlog.StdLogger),
-			jaegercfg.Metrics(jaegermetrics.NullFactory),
-		)
-		if err != nil {
-			log15.Warn("Could not initialize jaeger tracer", "error", err.Error())
-			return
-		}
-		ot.SetGlobalTracer(tracer)
-		jaegerCloser = closer
-		SpanURL = jaegerSpanURL
-	default:
-		log15.Info("Distributed tracing disabled")
-		if existingJaegerCloser := jaegerCloser; existingJaegerCloser != nil {
-			go func() { // do outside critical region
-				err := existingJaegerCloser.Close()
-				if err != nil {
-					log15.Warn("Unable to close Jaeger client", "error", err)
-				}
-			}()
-		}
-		ot.SetGlobalTracer(ot.NoopTracer{})
-		jaegerCloser = nil
-		trace.SpanURL = trace.NoopSpanURL
-	}
-
-	Sampling = s
-}
-
-func jaegerSpanURL(span ot.Span) string {
-	if span == nil {
-		return "#tracing-not-enabled-for-this-request"
-	}
-	spanCtx, ok := span.Context().(jaeger.SpanContext)
-	if !ok {
-		return "#tracing-not-enabled-for-this-request"
-	}
-	return spanCtx.TraceID().String()
-}
 
 func fromContext(ctx context.Context) bool {
 	v, ok := ctx.Value(shouldTraceKey).(bool)
