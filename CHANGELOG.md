@@ -19,6 +19,7 @@ All notable changes to Sourcegraph are documented in this file.
 
 - Multiple backwards-incompatible changes in the parts of the GraphQL API related to Campaigns:
   - `CampaignPlan.status` has been removed, since we don't need it anymore after moving execution of campaigns to src CLI in [#8008](https://github.com/sourcegraph/sourcegraph/pull/8008).
+- Removed the scoped search field on tree pages. When browsing code, the global search query will now get scoped to the current tree or file. [#9225](https://github.com/sourcegraph/sourcegraph/pull/9225)
 
 ### Fixed
 
