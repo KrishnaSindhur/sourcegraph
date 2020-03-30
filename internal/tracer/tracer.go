@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"reflect"
 	"sync"
@@ -151,6 +152,7 @@ func initTracer(opts *Options) {
 		} else if siteConfig.UseJaeger {
 			samplingStrategy = ot.SampleAll
 		}
+		log.Printf("# initTracer samplingStrategy: %v", samplingStrategy)
 		ot.Sampling = samplingStrategy
 
 		// Set global tracer (Jaeger or No-op). Mutex-protected

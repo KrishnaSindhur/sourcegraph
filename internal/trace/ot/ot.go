@@ -6,6 +6,7 @@ package ot
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -80,14 +81,8 @@ func MiddlewareWithTracer(tr opentracing.Tracer, h http.Handler, opts ...nethttp
 			return fromContext(r.Context())
 		}),
 	}, opts...)...)
-	// // logging
-	// m2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	if DebugLog {
-	// 		log15.Info("trace: MiddlewareWithTracer", "url", r.URL.String(), "shouldTrace", shouldTrace(r.Context()))
-	// 	}
-	// 	m.ServeHTTP(w, r)
-	// })
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("# Sampling %v", Sampling)
 		switch Sampling {
 		case "selective":
 			traceHeaderIsTrue, _ := strconv.ParseBool(r.Header.Get(traceHeader))
